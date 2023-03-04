@@ -3,92 +3,85 @@
   
     <script src="//unpkg.com/globe.gl"></script>
   <!--  <script src="../../dist/globe.gl.js"></script>-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   </head>
   
   <body>
 
-    <form id="frm1" >
-        Enter City: <input type="text" id="location_name" name="location_name"><br>
-        <input type="button" onclick="myFunction()" value="Submit">
-    </form>
+    <nav class="navbar navbar-light bg-light">
+        <a class="navbar-brand" href="#">Air Quality for Global Cities</a>
+        <form id="frm1" class="form-inline my-2 my-lg-0" >
+            <input class="form-control mr-sm-2" type="text" id="location_name" name="location_name" placeholder="Enter City Name"><br>
+            <input class="form-control mr-sm-2" type="button" onclick="myFunction()" value="Submit">
+        </form>
+    </nav>
 
     <div id="globeViz"></div>
   
     <script>
 
-    window.onload = function() {
-        globeFunction("boulder")
-    }
+        window.onload = function() {
+            globeFunction("boulder")
+        }
 
-    key = "0a31e3424db94caa941190507230403";
+        key = "0a31e3424db94caa941190507230403";
 
-    let loc = localStorage.getItem("location")
-    function myFunction() {
-        loc = document.getElementById("location_name").value;
-        localStorage.setItem("location", loc)
-    
-        console.log(loc)
-        globeFunction(loc)
-    }
-
-    //   fetch("http://api.weatherapi.com/v1/forecast.json?key=0a31e3424db94caa941190507230403&q=Boulder&days=2&aqi=no&alerts=no")
-    //   .then((response) => response.json())
-    //   .then((json) => console.log(json["location"]["lat"]));
-
-    function globeFunction(loc) {
-        let dataGlobal;
-
-        const getData = async () => {
-
-            const response = await fetch(`http://api.weatherapi.com/v1/forecast.json?key=0a31e3424db94caa941190507230403&q=${loc}&days=1&aqi=yes&alerts=no`);
-            const data = await response.json();
-            dataGlobal = data;
-            return data;
-        };
-
-        (async () => {
-
-            await getData();
-            console.log(dataGlobal);
-
-            let location_lat = dataGlobal["location"]["lat"]
-            let location_lng = dataGlobal["location"]["lon"]
-
-            let air_quality = dataGlobal["forecast"]["forecastday"][0]["day"]["air_quality"]["us-epa-index"];
-
-            let air_quality_color = "";
-
-            if(air_quality <= 3) {
-                air_quality_color = "lightgreen"
-            }
-            else {
-                air_quality_color = "red"
-            }
-
-        //   const N = 300;
-        //   const gData = [...Array(N).keys()].map(() => ({
-        //     lat: (Math.random() - 0.5) * 180,
-        //     lng: (Math.random() - 0.5) * 360,
-        //     size: Math.random() / 3,
-        //     color: ['red', 'white', 'blue', 'green'][Math.round(Math.random() * 3)]
-        //   }));
+        let loc = localStorage.getItem("location")
+        function myFunction() {
+            loc = document.getElementById("location_name").value;
+            localStorage.setItem("location", loc)
         
-            const gData = [{lat: location_lat, lng: location_lng, size: 0.1, color: air_quality_color}]
+            console.log(loc)
+            globeFunction(loc)
+        }
 
-            console.log(gData)
+        function globeFunction(loc) {
+            let dataGlobal;
 
-            Globe()
-                .globeImageUrl('//unpkg.com/three-globe/example/img/earth-day.jpg')
-                .pointsData(gData)
-                .pointAltitude('size')
-                .pointColor('color')
-                .pointAltitude(0)
-                .pointRadius(2)
-                .pointLabel(air_quality)
-            (document.getElementById('globeViz'))
-        
-        })();
-    }
+            const getData = async () => {
+                const response = await fetch(`http://api.weatherapi.com/v1/forecast.json?key=0a31e3424db94caa941190507230403&q=${loc}&days=1&aqi=yes&alerts=no`);
+                const data = await response.json();
+                dataGlobal = data;
+                return data;
+            };
+
+            (async () => {
+
+                await getData();
+                console.log(dataGlobal);
+
+                let location_lat = dataGlobal["location"]["lat"]
+                let location_lng = dataGlobal["location"]["lon"]
+
+                let air_quality = dataGlobal["forecast"]["forecastday"][0]["day"]["air_quality"]["us-epa-index"];
+                let air_quality_color = "";
+
+                if(air_quality <= 3) {
+                    air_quality_color = "lightgreen"
+                }
+                else {
+                    air_quality_color = "red"
+                }
+            
+                const gData = [{lat: location_lat, lng: location_lng, size: 0.1, color: air_quality_color}]
+                console.log(gData)
+
+                Globe()
+                    .globeImageUrl('//unpkg.com/three-globe/example/img/earth-day.jpg')
+                    .pointOfView({lat: location_lat, lng: location_lng, altitude: 2.5}, [2])
+                    .pointsData(gData)
+                    .pointAltitude('size')
+                    .pointColor('color')
+                    .pointAltitude(0)
+                    .pointRadius(2)
+                    .pointLabel(air_quality)
+                (document.getElementById('globeViz'))
+            
+            })();
+        }
 
     </script>
   </body>
