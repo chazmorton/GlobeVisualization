@@ -1,0 +1,94 @@
+<head>
+    <style> body { margin: 0; } </style>
+  
+    <script src="//unpkg.com/globe.gl"></script>
+  <!--  <script src="../../dist/globe.gl.js"></script>-->
+  </head>
+  
+  <body>
+
+    <form id="frm1" >
+        Enter City: <input type="text" id="location_name" name="location_name"><br>
+        <input type="button" onclick="myFunction()" value="Submit">
+    </form>
+
+    <div id="globeViz"></div>
+  
+    <script>
+
+    window.onload = function() {
+        globeFunction("boulder")
+    }
+
+    key = "0a31e3424db94caa941190507230403";
+
+    let loc = localStorage.getItem("location")
+    function myFunction() {
+        loc = document.getElementById("location_name").value;
+        localStorage.setItem("location", loc)
+    
+        console.log(loc)
+        globeFunction(loc)
+    }
+
+    //   fetch("http://api.weatherapi.com/v1/forecast.json?key=0a31e3424db94caa941190507230403&q=Boulder&days=2&aqi=no&alerts=no")
+    //   .then((response) => response.json())
+    //   .then((json) => console.log(json["location"]["lat"]));
+
+    function globeFunction(loc) {
+        let dataGlobal;
+
+        const getData = async () => {
+
+            const response = await fetch(`http://api.weatherapi.com/v1/forecast.json?key=0a31e3424db94caa941190507230403&q=${loc}&days=1&aqi=yes&alerts=no`);
+            const data = await response.json();
+            dataGlobal = data;
+            return data;
+        };
+
+        (async () => {
+
+            await getData();
+            console.log(dataGlobal);
+
+            let location_lat = dataGlobal["location"]["lat"]
+            let location_lng = dataGlobal["location"]["lon"]
+
+            let air_quality = dataGlobal["forecast"]["forecastday"][0]["day"]["air_quality"]["us-epa-index"];
+
+            let air_quality_color = "";
+
+            if(air_quality <= 3) {
+                air_quality_color = "lightgreen"
+            }
+            else {
+                air_quality_color = "red"
+            }
+
+        //   const N = 300;
+        //   const gData = [...Array(N).keys()].map(() => ({
+        //     lat: (Math.random() - 0.5) * 180,
+        //     lng: (Math.random() - 0.5) * 360,
+        //     size: Math.random() / 3,
+        //     color: ['red', 'white', 'blue', 'green'][Math.round(Math.random() * 3)]
+        //   }));
+        
+            const gData = [{lat: location_lat, lng: location_lng, size: 0.1, color: air_quality_color}]
+
+            console.log(gData)
+
+            Globe()
+                .globeImageUrl('//unpkg.com/three-globe/example/img/earth-day.jpg')
+                .pointsData(gData)
+                .pointAltitude('size')
+                .pointColor('color')
+                .pointAltitude(0)
+                .pointRadius(2)
+                .pointLabel(air_quality)
+            (document.getElementById('globeViz'))
+        
+        })();
+    }
+
+    </script>
+  </body>
